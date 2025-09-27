@@ -1,0 +1,283 @@
+/* Viewer CSS for panorama modal interface */
+
+/* Viewer Modal */
+.viewer-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.viewer-modal.active {
+    display: flex;
+    opacity: 1;
+}
+
+/* Viewer Overlay */
+.viewer-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: -1;
+}
+
+/* Viewer Container */
+.viewer-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Viewer Header - Hidden */
+.viewer-header {
+    display: none;
+}
+
+.viewer-title {
+    font-size: 1.5rem;
+    font-weight: 300;
+    margin: 0;
+}
+
+.viewer-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 2rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    line-height: 1;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.viewer-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: rotate(90deg);
+}
+
+/* Viewer Content */
+.viewer-content {
+    flex: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Panorama Container */
+.pano-container {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    position: relative;
+}
+
+/* Viewer Controls - Hidden */
+.viewer-controls {
+    display: none;
+}
+
+.control-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    font-size: 1.5rem;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.control-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+.control-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.control-info {
+    color: white;
+    font-size: 1rem;
+    font-weight: 500;
+    min-width: 60px;
+    text-align: center;
+}
+
+/* Loading State */
+.viewer-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    z-index: 20;
+}
+
+.viewer-loading.hidden {
+    display: none;
+}
+
+.viewer-loading p {
+    margin-top: 1rem;
+    font-size: 1.1rem;
+    opacity: 0.8;
+}
+
+/* Viewer Instructions - Hidden */
+.viewer-instructions {
+    display: none;
+}
+
+/* Error State */
+.viewer-error {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: white;
+    z-index: 20;
+}
+
+.viewer-error h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: #ff6b6b;
+}
+
+.viewer-error p {
+    font-size: 1rem;
+    opacity: 0.8;
+    margin-bottom: 1rem;
+}
+
+.retry-btn {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.retry-btn:hover {
+    background: #5a6fd8;
+    transform: translateY(-2px);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .viewer-header {
+        padding: 1rem;
+    }
+    
+    .viewer-title {
+        font-size: 1.2rem;
+    }
+    
+    .viewer-close {
+        font-size: 1.5rem;
+        width: 40px;
+        height: 40px;
+    }
+    
+    .viewer-controls {
+        bottom: 1rem;
+        padding: 0.75rem 1.5rem;
+        gap: 0.75rem;
+    }
+    
+    .control-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+    
+    .control-info {
+        font-size: 0.9rem;
+        min-width: 50px;
+    }
+    
+    .viewer-instructions {
+        display: none; /* Hide on mobile for better UX */
+    }
+}
+
+@media (max-width: 480px) {
+    .viewer-header {
+        padding: 0.75rem;
+    }
+    
+    .viewer-title {
+        font-size: 1rem;
+    }
+    
+    .viewer-controls {
+        bottom: 0.5rem;
+        padding: 0.5rem 1rem;
+        gap: 0.5rem;
+    }
+    
+    .control-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+    }
+    
+    .control-info {
+        font-size: 0.8rem;
+        min-width: 40px;
+    }
+}
+
+/* Fullscreen API Support */
+.viewer-modal:-webkit-full-screen {
+    background: #000;
+}
+
+.viewer-modal:-moz-full-screen {
+    background: #000;
+}
+
+.viewer-modal:fullscreen {
+    background: #000;
+}
+
+/* Keyboard Navigation Hints */
+.viewer-modal.keyboard-user .control-btn:focus {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}

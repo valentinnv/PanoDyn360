@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>360° Panorama Gallery</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/gallery.css">
+    <link rel="stylesheet" href="css/viewer.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1 class="title">360° Panorama Gallery</h1>
+            <p class="subtitle">Explore immersive panoramic experiences</p>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <section class="gallery" id="gallery">
+                <div class="gallery-grid" id="gallery-grid">
+                    <!-- Gallery items will be dynamically generated here -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Panorama Viewer Modal -->
+    <div class="viewer-modal" id="viewer-modal">
+        <div class="viewer-overlay" id="viewer-overlay"></div>
+        <div class="viewer-container">
+            <div class="viewer-header">
+                <h3 class="viewer-title" id="viewer-title">Panorama Title</h3>
+                <button class="viewer-close" id="viewer-close">&times;</button>
+            </div>
+            <div class="viewer-content">
+                <div id="pano" class="pano-container"></div>
+                <div class="viewer-controls">
+                    <button class="control-btn" id="prev-btn" title="Previous">&#8249;</button>
+                    <div class="control-info">
+                        <span id="current-index">1</span> / <span id="total-count">1</span>
+                    </div>
+                    <button class="control-btn" id="next-btn" title="Next">&#8250;</button>
+                </div>
+            </div>
+            <div class="viewer-loading" id="viewer-loading">
+                <div class="loading-spinner"></div>
+                <p>Loading panorama...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="lib/marzipano/marzipano.js"></script>
+    <script src="js/panorama-discovery.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/gallery.js"></script>
+    <script src="js/viewer.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
