@@ -1,6 +1,2 @@
 # Minimal requirements for your server
-# If you use only Python's standard library, leave this empty.
-# If you want to use Flask or similar, add it below.
-
-# Example (uncomment if you switch to Flask):
-# flask
+gunicorn
