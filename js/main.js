@@ -47,14 +47,6 @@ class PanoramaApp {
 
     checkDependencies() {
         console.log('Checking dependencies...');
-        
-        // Check if Marzipano is loaded
-        if (typeof Marzipano === 'undefined') {
-            console.error('Marzipano library not found');
-            console.error('Make sure lib/marzipano/marzipano.js is accessible');
-            return false;
-        }
-        console.log('✓ Marzipano library loaded successfully');
 
         // Check if configuration is loaded
         if (typeof PANORAMA_CONFIG === 'undefined' && typeof SAMPLE_PANORAMAS === 'undefined') {
@@ -64,13 +56,8 @@ class PanoramaApp {
         }
         console.log('✓ Configuration loaded successfully');
 
-        // Check WebGL support
-        if (!ViewerUtils.checkWebGLSupport()) {
-            console.warn('WebGL not supported - panorama viewer may not work properly');
-            console.warn('Browser:', navigator.userAgent);
-            return false;
-        }
-        console.log('✓ WebGL support detected');
+        // WebGL check is not needed for Pannellum
+        console.log('✓ Dependencies checked');
 
         return true;
     }
@@ -219,23 +206,10 @@ class PanoramaApp {
     showFallbackMessage() {
         const container = document.querySelector('#gallery-grid');
         if (container) {
-            const hasWebGL = ViewerUtils.checkWebGLSupport();
-            const hasMarzipano = typeof Marzipano !== 'undefined';
-            
             container.innerHTML = `
                 <div class="fallback-message">
                     <h3>Unable to Load Panorama Viewer</h3>
-                    <div class="diagnostic-info">
-                        <h4>Diagnostic Information:</h4>
-                        <ul>
-                            <li>Marzipano Library: ${hasMarzipano ? '✓ Loaded' : '✗ Not Found'}</li>
-                            <li>WebGL Support: ${hasWebGL ? '✓ Supported' : '✗ Not Supported'}</li>
-                            <li>Browser: ${navigator.userAgent.split(' ').pop()}</li>
-                        </ul>
-                    </div>
-                    ${!hasMarzipano ? '<p><strong>Issue:</strong> The 360° viewing library failed to load. Please check your internet connection or try refreshing the page.</p>' : ''}
-                    ${!hasWebGL ? '<p><strong>Issue:</strong> Your browser does not support WebGL, which is required for 360° panorama viewing.</p>' : ''}
-                    <p>Please try using a modern browser like Chrome, Firefox, Safari, or Edge.</p>
+                    <p>There was a problem loading the viewer. Please check your browser and try again.</p>
                     <button class="retry-button" onclick="location.reload()">Try Again</button>
                 </div>
             `;
@@ -298,8 +272,8 @@ const AppUtils = {
         return {
             name: browser,
             userAgent: ua,
-            isMobile: ViewerUtils.isMobile(),
-            hasWebGL: ViewerUtils.checkWebGLSupport()
+            isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
+            hasWebGL: !!window.WebGLRenderingContext
         };
     },
 
@@ -327,29 +301,7 @@ const AppUtils = {
 
 // Script Loading Helper
 const ScriptLoader = {
-    // Check if script loaded properly with retry mechanism
-    waitForMarzipano(maxAttempts = 10, interval = 500) {
-        return new Promise((resolve, reject) => {
-            let attempts = 0;
-            
-            const checkMarzipano = () => {
-                attempts++;
-                
-                if (typeof Marzipano !== 'undefined') {
-                    console.log(`✓ Marzipano loaded successfully after ${attempts} attempt(s)`);
-                    resolve(true);
-                } else if (attempts >= maxAttempts) {
-                    console.error(`✗ Marzipano failed to load after ${maxAttempts} attempts`);
-                    reject(new Error('Marzipano library failed to load'));
-                } else {
-                    console.log(`Waiting for Marzipano... (attempt ${attempts}/${maxAttempts})`);
-                    setTimeout(checkMarzipano, interval);
-                }
-            };
-            
-            checkMarzipano();
-        });
-    }
+    // Utility functions for script loading
 };
 
 // Initialize the app
@@ -358,44 +310,25 @@ let panoramaApp;
 // Create global instance when script loads with proper dependency waiting
 (async function() {
     try {
-        // Wait for Marzipano to load
-        await ScriptLoader.waitForMarzipano();
-        
         // Initialize the app
         panoramaApp = new PanoramaApp();
-        
+
         // Log system information in development
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
             AppUtils.logSystemInfo();
         }
-        
+
         // Make app globally accessible for debugging
         window.PanoramaApp = panoramaApp;
-        
+
     } catch (error) {
         console.error('Failed to initialize app:', error);
-        
-        // Show fallback message directly if Marzipano fails to load
         const container = document.querySelector('#gallery-grid');
         if (container) {
             container.innerHTML = `
                 <div class="fallback-message">
-                    <h3>Unable to Load 360° Panorama Viewer</h3>
-                    <div class="diagnostic-info">
-                        <h4>Technical Details:</h4>
-                        <ul>
-                            <li>Marzipano Library: ✗ Failed to Load</li>
-                            <li>Error: ${error.message}</li>
-                            <li>Browser: ${navigator.userAgent.split(' ').pop()}</li>
-                        </ul>
-                    </div>
-                    <p><strong>This could be caused by:</strong></p>
-                    <ul style="text-align: left; max-width: 400px; margin: 1rem auto;">
-                        <li>Network connection issues</li>
-                        <li>Browser blocking scripts</li>
-                        <li>Ad blockers or security software</li>
-                        <li>Missing library files</li>
-                    </ul>
+                    <h3>Unable to Load Panorama Viewer</h3>
+                    <p>${error.message}</p>
                     <button class="retry-button" onclick="location.reload()">Reload Page</button>
                 </div>
             `;
