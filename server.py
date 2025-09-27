@@ -1,6 +1,8 @@
 from flask import Flask, jsonify, send_from_directory, request
 from pathlib import Path
 import os
+from PIL import Image
+import io
 
 app = Flask(__name__, static_folder='.', static_url_path='')
 
@@ -29,7 +31,80 @@ def panorama_list():
 
 @app.route('/assets/panoramas/<path:filename>')
 def serve_panorama(filename):
+    # Check if mobile device based on user agent
+    user_agent = request.headers.get('User-Agent', '').lower()
+    is_mobile = any(mobile in user_agent for mobile in ['mobile', 'android', 'iphone', 'ipad', 'ipod'])
+    
+    # Check if client explicitly requests resized image
+    resize = request.args.get('resize', 'false').lower() == 'true'
+    max_width = int(request.args.get('max_width', '2048'))
+    
+    if is_mobile or resize:
+        try:
+            # Resize image for mobile devices
+            return serve_resized_panorama(filename, max_width)
+        except Exception as e:
+            print(f"Error resizing image {filename}: {e}")
+            # Fallback to original if resize fails
+            return send_from_directory('assets/panoramas', filename)
+    
     return send_from_directory('assets/panoramas', filename)
+
+def serve_resized_panorama(filename, max_width=2048):
+    """Serve a resized version of the panorama image"""
+    file_path = Path('assets/panoramas') / filename
+    
+    if not file_path.exists():
+        return "File not found", 404
+    
+    try:
+        # Open and resize image
+        with Image.open(file_path) as img:
+            # Calculate new dimensions maintaining aspect ratio
+            original_width, original_height = img.size
+            
+            if original_width <= max_width:
+                # Image is already small enough
+                return send_from_directory('assets/panoramas', filename)
+            
+            ratio = max_width / original_width
+            new_height = int(original_height * ratio)
+            
+            # Resize image
+            resized_img = img.resize((max_width, new_height), Image.Resampling.LANCZOS)
+            
+            # Convert to bytes
+            img_io = io.BytesIO()
+            
+            # Determine format based on file extension
+            format = 'JPEG'
+            if filename.lower().endswith('.png'):
+                format = 'PNG'
+            elif filename.lower().endswith('.webp'):
+                format = 'WEBP'
+            
+            # Save with optimization
+            if format == 'JPEG':
+                resized_img.save(img_io, format=format, quality=85, optimize=True)
+            else:
+                resized_img.save(img_io, format=format, optimize=True)
+            
+            img_io.seek(0)
+            
+            # Return the resized image
+            from flask import Response
+            return Response(
+                img_io.getvalue(),
+                mimetype=f'image/{format.lower()}',
+                headers={
+                    'Content-Disposition': f'inline; filename="{filename}"',
+                    'Cache-Control': 'public, max-age=3600'
+                }
+            )
+            
+    except Exception as e:
+        print(f"Error processing image {filename}: {e}")
+        return send_from_directory('assets/panoramas', filename)
 
 @app.route('/<path:filename>')
 def serve_static(filename):

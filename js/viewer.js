@@ -111,8 +111,11 @@ class PanoramaViewer {
 
         this.showLoading();
 
+        // Get the appropriate panorama URL for the device
+        const panoramaUrl = this.getPanoramaUrlForDevice(panorama.panorama);
+
         try {
-            await this.validateAndPreloadImage(panorama.panorama);
+            await this.validateAndPreloadImage(panoramaUrl);
         } catch (error) {
             this.hideLoading();
             this.showError('Failed to load panorama image: ' + error.message);
@@ -122,7 +125,7 @@ class PanoramaViewer {
         this.container.innerHTML = '';
         this.viewer = pannellum.viewer(this.container.id, {
             type: "equirectangular",
-            panorama: panorama.panorama,
+            panorama: panoramaUrl,
             autoLoad: true,
             showControls: true,
             compass: false,
@@ -148,6 +151,19 @@ class PanoramaViewer {
         setTimeout(() => {
             this.hideLoading();
         }, 1000);
+    }
+
+    getPanoramaUrlForDevice(originalUrl) {
+        // Check if device is mobile
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        if (isMobile) {
+            // Add resize parameter for mobile devices
+            const separator = originalUrl.includes('?') ? '&' : '?';
+            return `${originalUrl}${separator}resize=true&max_width=2048`;
+        }
+        
+        return originalUrl;
     }
 
     validateAndPreloadImage(imageUrl) {
