@@ -70,11 +70,8 @@ class PanoramaViewer {
             }
         });
 
-        this.modal?.addEventListener('wheel', (e) => {
-            if (this.isOpen) {
-                e.preventDefault();
-            }
-        });
+        // Remove wheel event prevention to allow Pannellum zoom
+        // The modal wheel prevention was blocking Pannellum's zoom functionality
     }
 
     openViewer(data) {
@@ -123,7 +120,7 @@ class PanoramaViewer {
         }
 
         this.container.innerHTML = '';
-        pannellum.viewer(this.container.id, {
+        this.viewer = pannellum.viewer(this.container.id, {
             type: "equirectangular",
             panorama: panorama.panorama,
             autoLoad: true,
@@ -131,8 +128,17 @@ class PanoramaViewer {
             compass: false,
             title: panorama.title || "",
             hfov: 100,
+            minHfov: 50,
+            maxHfov: 120,
             pitch: 0,
-            yaw: 0
+            yaw: 0,
+            mouseZoom: true,
+            doubleClickZoom: true,
+            keyboardZoom: true,
+            draggable: true,
+            disableKeyboardCtrl: false,
+            showZoomCtrl: true,
+            showFullscreenCtrl: true
         });
 
         if (this.viewerTitle) {
