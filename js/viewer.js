@@ -157,13 +157,22 @@ class PanoramaViewer {
         this.hideLoading();
     }
 
-    loadPanorama(panorama) {
+    async loadPanorama(panorama) {
         if (!panorama || !this.viewer) {
             console.error('Invalid panorama data or viewer not initialized');
             return;
         }
 
         this.showLoading();
+
+        // Preload and validate image before rendering
+        try {
+            await this.validateAndPreloadImage(panorama.panorama);
+        } catch (error) {
+            this.hideLoading();
+            this.showError('Failed to load panorama image: ' + error.message);
+            return;
+        }
 
         // Ensure the viewer has been properly sized after modal opens
         setTimeout(() => {
@@ -181,7 +190,6 @@ class PanoramaViewer {
             try {
                 console.log('Loading panorama:', panorama.panorama);
                 
-                // Use EXACTLY the same code as the working test
                 const source = Marzipano.ImageUrlSource.fromString(panorama.panorama);
                 const optimalWidth = ViewerUtils.getOptimalResolution();
                 const geometry = new Marzipano.EquirectGeometry([{ width: optimalWidth }]);
@@ -192,14 +200,14 @@ class PanoramaViewer {
                     this.viewer.destroyScene(this.scene);
                 }
                 
-                // Create scene - identical to working test
+                // Create scene
                 this.scene = this.viewer.createScene({
                     source: source,
                     geometry: geometry,
                     view: view
                 });
                 
-                // Switch to scene - identical to working test
+                // Switch to scene
                 this.scene.switchTo();
                 
                 // Update title
@@ -210,7 +218,7 @@ class PanoramaViewer {
                 // Hide loading
                 setTimeout(() => {
                     this.hideLoading();
-                    console.log('✓ Panorama loaded with same code as working test');
+                    console.log('✓ Panorama loaded after image validation');
                 }, 1000);
                 
             } catch (error) {
