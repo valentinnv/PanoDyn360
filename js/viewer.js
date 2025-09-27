@@ -183,7 +183,8 @@ class PanoramaViewer {
                 
                 // Use EXACTLY the same code as the working test
                 const source = Marzipano.ImageUrlSource.fromString(panorama.panorama);
-                const geometry = new Marzipano.EquirectGeometry([{ width: 4096 }]);
+                const optimalWidth = ViewerUtils.getOptimalResolution();
+                const geometry = new Marzipano.EquirectGeometry([{ width: optimalWidth }]);
                 const view = new Marzipano.RectilinearView();
                 
                 // Destroy existing scene
